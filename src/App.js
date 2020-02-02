@@ -1,25 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useCallback, useState } from "react";
+import { useDebounce } from "./useDebounce";
+
+const fakeFetch = (data, delay = Math.random() * 5000) =>
+  new Promise(resolve => {
+    setTimeout(resolve, delay, {
+      data,
+      delay,
+      time: new Date().toLocaleTimeString()
+    });
+  });
 
 function App() {
+  const [value, setValue] = useState("");
+
+  const debouchedChange = useCallback(useDebounce(fakeFetch, 300));
+
+  const handleValueChange = async v => {
+    const response = await debouchedChange(v);
+    console.log(response);
+    setValue(response.data);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <React.Fragment>
+      <input onChange={e => handleValueChange(e.target.value)} />
+      <div>{value}</div>
+    </React.Fragment>
   );
 }
 
